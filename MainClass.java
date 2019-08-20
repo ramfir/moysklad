@@ -28,6 +28,10 @@ public class MainClass {
 	public static void parseCommand(String inputCommand) throws ParseException {
 		String[] s = inputCommand.split(" ");
 		if (s.length == 2) {
+			if (!s[0].toUpperCase().equals("NEWPRODUCT")) {
+				System.out.println("Wrong input data");
+				return;
+			}
 			Command command = new NewProduct();
 			command.setName(s[0]);
 			Product product = new Product(s[1]);
@@ -39,69 +43,74 @@ public class MainClass {
 			}
 			commandsQueue.getQueue().add(command);
 		} else if (s.length == 5) {
+			if (!(s[0].toUpperCase().equals("PURCHASE") || s[0].toUpperCase().equals("DEMAND"))) {
+				System.out.println("Wrong input data");
+				return;
+			}
 			PurchaseDemand command = new PurchaseDemand();
 			command.setName(s[0]);
 			command.setProduct(isInSet(s[1]));
-			command.setAmount(Integer.parseInt(s[2]));
-			if (command.getName().equals("PURCHASE")) {
-				if (command.getProduct() != null) {
-					command.getProduct().setAmount(command.getProduct().getAmount()+command.getAmount());
-					command.setStatus("OK");
-				} else {
-					command.setStatus("ERROR");
-				}
-			} else if (command.getName().equals("DEMAND")) {
-				if (command.getProduct() != null && command.getProduct().getAmount() >= command.getAmount()) {
-					command.getProduct().setAmount(command.getProduct().getAmount()-command.getAmount());
-					command.setStatus("OK");
-				} else {
-					command.setStatus("ERROR");
-				}
+			command.setAmount(s[2]);
+			if (command.getName().equals("PURCHASE") && command.getProduct() != null) {
+				command.getProduct().setAmount(command.getProduct().getAmount()+command.getAmount());
+			} else if (command.getName().equals("DEMAND") && command.getProduct() != null) {
+				command.getProduct().setAmount(command.getProduct().getAmount()-command.getAmount());
 			}
-			command.setCoast(Integer.parseInt(s[3]));
+			command.setCost(s[3]);
 			command.setDate(s[4]);
+			if (command.getProduct() == null || command.getAmount() <= 0 || command.getCost() == 0)
+				command.setStatus("ERROR");
+			else
+				command.setStatus("OK");
 			commandsQueue.getQueue().add(command);
 		} else if (s.length == 3) {
+			if (!s[0].toUpperCase().equals("SALESREPORT")) {
+				System.out.println("Wrong input data");
+				return;
+			}
 			SalesReport command = new SalesReport();
 			command.setName(s[0]);
 			command.setProduct(isInSet(s[1]));
 			command.setDate(s[2]);
 			if (command.getProduct() != null) {
-				int proAmount = 0;
-				int wholePribil = 0;
-				int sebesto = 0;
+				int soldAmount = 0;
+				long totalMoney = 0;
+				long costPrice = 0;
 				for (Command c : commandsQueue.getQueue()) {
 					if (c.getStatus().equals("OK") && 
 						c.getName().equals("DEMAND") && 
 						c.getProduct().equals(command.getProduct()) && 
 						command.getDate().compareTo(((PurchaseDemand)c).getDate()) >= 0) {
 
-						proAmount += ((PurchaseDemand)c).getAmount();
-						wholePribil += ((PurchaseDemand)c).getAmount()*((PurchaseDemand)c).getCoast();
+						soldAmount += ((PurchaseDemand)c).getAmount();
+						totalMoney += ((PurchaseDemand)c).getAmount()*((PurchaseDemand)c).getCost();
 					}
 				}
 				for (Command c : commandsQueue.getQueue()) {
-					if (proAmount == 0) {
+					if (soldAmount == 0) {
 						break;
 					}
 					if (c.getStatus().equals("OK") && 
 						c.getName().equals("PURCHASE") && 
-						c.getProduct().equals(command.getProduct())) {
+						c.getProduct().equals(command.getProduct()) &&
+						command.getDate().compareTo(((PurchaseDemand)c).getDate()) >= 0) {
 
-						if (proAmount > ((PurchaseDemand)c).getAmount()) {
-							proAmount -= ((PurchaseDemand)c).getAmount();
-							sebesto += ((PurchaseDemand)c).getAmount()*((PurchaseDemand)c).getCoast();
+						if (soldAmount > ((PurchaseDemand)c).getAmount()) {
+							soldAmount -= ((PurchaseDemand)c).getAmount();
+							costPrice += ((PurchaseDemand)c).getAmount()*((PurchaseDemand)c).getCost();
 						} else {
-							sebesto += proAmount*((PurchaseDemand)c).getCoast();
-							proAmount = 0;
+							costPrice += soldAmount*((PurchaseDemand)c).getCost();
+							soldAmount = 0;
 						}
 					}
 				}
-				command.setStatus(Integer.toString(wholePribil - sebesto));
+				command.setStatus(Long.toString(totalMoney - costPrice));
 			} else {
 				command.setStatus("ERROR");
 			}
 			commandsQueue.getQueue().add(command);
+		} else {
+			System.out.println("Wrong input data");
 		}
 	}
 	public static Product isInSet(String s) {

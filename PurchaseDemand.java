@@ -4,26 +4,41 @@ import java.text.ParseException;
 
 public class PurchaseDemand extends Command {
 	private int amount;
-	private int coast;
+	private long cost;
 	private Date date;
 
 	public int getAmount() {
 		return amount;
 	}
-	public int getCoast() {
-		return coast;
+	public long getCost() {
+		return cost;
 	}
 	public Date getDate() {
 		return date;
 	}
-	public void setAmount(int amount) {
-		this.amount = amount;
+	public void setAmount(String amount) {
+		try {
+			this.amount = Integer.parseInt(amount);	
+		} catch (NumberFormatException ex) {
+			System.out.println("wrong amount input");
+		}
 	}
-	public void setCoast(int coast) {
-		this.coast = coast;
+	public void setCost(String cost) {
+		try {
+			long c = Long.parseLong(cost);
+			if (c > 0)
+				this.cost = c;
+		} catch (NumberFormatException ex) {
+			System.out.println("wrong cost input");
+		}
 	}
-	public void setDate(String date) throws ParseException {
-		this.date = new SimpleDateFormat("dd.MM.yyyy").parse(date);
+	public void setDate(String date) {
+		try {
+			this.date = new SimpleDateFormat("dd.MM.yyyy").parse(date);	
+		} catch (ParseException ex) {
+			System.out.println("wrong date input");
+		}
+		
 	}
 
 	@Override
@@ -32,7 +47,7 @@ public class PurchaseDemand extends Command {
 	    result += "Name: " + name + "\n";
 	    result += "Product: " + product.getName() + "\n";
 	    result += "Amount: " + amount + "\n";
-	    result += "Coast: " + coast + "\n";
+	    result += "Cost: " + cost + "\n";
 	    if (date != null) {
 	    	result += "Date: " + new SimpleDateFormat("dd.MM.yyyy").format(date) + "\n";
 	    }

@@ -1,7 +1,3 @@
-//import java.util.Date;
-//import java.text.SimpleDateFormat;
-//import java.text.ParseException;
-
 public abstract class Command {
 	protected String name;
 	protected Product product;
@@ -17,7 +13,7 @@ public abstract class Command {
 		return status;
 	}
 	public void setName(String name) {
-		this.name = name;
+		this.name = name.toUpperCase();
 	}
 	public void setProduct(Product product) {
 		this.product = product;

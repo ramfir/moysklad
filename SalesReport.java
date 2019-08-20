@@ -8,8 +8,13 @@ public class SalesReport extends Command {
 	public Date getDate() {
 		return date;
 	}
-	public void setDate(String date) throws ParseException {
-		this.date = new SimpleDateFormat("dd.MM.yyyy").parse(date);
+	public void setDate(String date) {
+		try {
+			this.date = new SimpleDateFormat("dd.MM.yyyy").parse(date);	
+		} catch (ParseException ex) {
+			System.out.println("wrong date input");
+		}
+		
 	}
 
 	@Override

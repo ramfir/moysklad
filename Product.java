@@ -12,7 +12,7 @@ public class Product {
 		return amount;
 	}
 	public void setName(String name) {
-		this.name = name;
+		this.name = name.toLowerCase();
 	}
 	public void setAmount(int amount) {
 		this.amount = amount;
