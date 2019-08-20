@@ -27,22 +27,54 @@ public class MainClass {
 	public static void parseCommand(String inputCommand) throws ParseException {
 		String[] s = inputCommand.split(" ");
 		if (s.length == 2) {
-			Command command = new Command();
+			Command command = new NewProduct();
 			command.setName(s[0]);
 			Product product = new Product(s[1]);
 			command.setProduct(product);
 			if (productsSet.add(product)) {
-				command.setStatus(true);
+				command.setStatus("OK");
 				//System.out.println("ura");
 			} else {
 				//System.out.println("no");
-				command.setStatus(false);
+				command.setStatus("ERROR");
 			}
 			commandsQueue.add(command);
 			//System.out.println(productsSet.size());
 
 		} else if (s.length == 5) {
-			Command command = new Command();
+			PurchaseDemand command = new PurchaseDemand();
+			command.setName(s[0]);
+			Product current_product = new Product(s[1]);
+			Iterator<Product> it = productsSet.iterator();
+			while (it.hasNext()) {
+				Product product = it.next();
+				if (product.equals(current_product)) {
+					command.setProduct(product);
+					break;
+				}
+				//System.out.println(product.getName());
+			}
+			//comm.setProduct(product);
+			command.setAmount(Integer.parseInt(s[2]));
+			if (command.getName().equals("PURCHASE")) {
+				if (command.getProduct() != null) {
+					command.getProduct().setAmount(command.getProduct().getAmount()+command.getAmount());
+					command.setStatus("OK");
+				} else {
+					command.setStatus("ERROR");
+				}
+			} else if (command.getName().equals("DEMAND")) {
+				if (command.getProduct() != null && command.getProduct().getAmount() >= command.getAmount()) {
+					command.getProduct().setAmount(command.getProduct().getAmount()-command.getAmount());
+					command.setStatus("OK");
+				} else {
+					command.setStatus("ERROR");
+				}
+			}
+			command.setCoast(Integer.parseInt(s[3]));
+			command.setDate(s[4]);
+			commandsQueue.add(command);
+			/*Command command = new Command();
 			command.setName(s[0]);
 			Product current_product = new Product(s[1]);
 			Iterator<Product> it = productsSet.iterator();
@@ -65,10 +97,10 @@ public class MainClass {
 			}
 			command.setCoast(Integer.parseInt(s[3]));
 			command.setDate(s[4]);
-			commandsQueue.add(command);
+			commandsQueue.add(command);*/
 			//command.printObj();
 		} else if (s.length == 3) {
-			Command command = new Command();
+			SalesReport command = new SalesReport();
 			command.setName(s[0]);
 			Product current_product = new Product(s[1]);
 			Iterator<Product> it = productsSet.iterator();
@@ -86,8 +118,8 @@ public class MainClass {
 			int sebesto = 0;
 			for (Command c : commandsQueue) {
 				if (c.getName().equals("DEMAND")) {
-					proAmount = c.getAmount();
-					wholePribil = proAmount*c.getCoast();
+					proAmount = ((PurchaseDemand)c).getAmount();
+					wholePribil = proAmount*((PurchaseDemand)c).getCoast();
 				}
 			}
 			for (Command c : commandsQueue) {
@@ -95,16 +127,18 @@ public class MainClass {
 					break;
 				}
 				if (c.getName().equals("PURCHASE") && c.getProduct().equals(command.getProduct())) {
-					if (proAmount > c.getAmount()) {
-						proAmount -= c.getAmount();
-						sebesto += c.getAmount()*c.getCoast();
+					if (proAmount > ((PurchaseDemand)c).getAmount()) {
+						proAmount -= ((PurchaseDemand)c).getAmount();
+						sebesto += ((PurchaseDemand)c).getAmount()*((PurchaseDemand)c).getCoast();
 					} else {
-						sebesto += proAmount*c.getCoast();
+						sebesto += proAmount*((PurchaseDemand)c).getCoast();
 						proAmount = 0;
 					}
 				}
 			}
-			System.out.println("Pribil: " + (wholePribil - sebesto));
+			command.setStatus(Integer.toString(wholePribil - sebesto));
+			commandsQueue.add(command);
+			//System.out.println("Pribil: " + (wholePribil - sebesto));
 		}
 	}
 	public static void printQueue() {
@@ -114,7 +148,7 @@ public class MainClass {
 			System.out.println("----------");
 		}*/
 		for (Command command : commandsQueue) {
-			command.printObj();
+			System.out.println(command);
 			System.out.println("----------");
 		}
 	}
