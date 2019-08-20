@@ -6,7 +6,7 @@ import java.util.Queue;
 import java.util.LinkedList;
 import java.util.Iterator;
 
-public class SalesReport {
+public class MainClass {
 	private static Set<Product> productsSet = new HashSet<Product>();
 	private static Queue<Command> commandsQueue = new LinkedList<Command>();
 	public static void main(String[] args) throws ParseException   {
