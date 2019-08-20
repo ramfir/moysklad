@@ -13,6 +13,9 @@ public class PurchaseDemand extends Command {
 	public int getCoast() {
 		return coast;
 	}
+	public Date getDate() {
+		return date;
+	}
 	public void setAmount(int amount) {
 		this.amount = amount;
 	}

@@ -13,6 +13,9 @@ public abstract class Command {
 	public String getName() {
 		return name;
 	}
+	public String getStatus() {
+		return status;
+	}
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -22,14 +25,4 @@ public abstract class Command {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	/*public void printObj() {
-		System.out.print("Name: " + name + "\n");
-		System.out.print("Product: ");
-		System.out.print(product.getName() + "\n");
-		System.out.print("Amount: " + amount + "\n");
-		System.out.print("Coast: " + coast + "\n");
-		if (date != null)
-			System.out.print("Date: " + new SimpleDateFormat("dd.MM.yyyy").format(date) + "\n");
-		System.out.print("Status: " + status + "\n");
-	}*/
 }

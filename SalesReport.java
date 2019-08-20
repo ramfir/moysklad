@@ -4,7 +4,10 @@ import java.text.ParseException;
 
 public class SalesReport extends Command {
 	private Date date;
-
+	
+	public Date getDate() {
+		return date;
+	}
 	public void setDate(String date) throws ParseException {
 		this.date = new SimpleDateFormat("dd.MM.yyyy").parse(date);
 	}
@@ -13,10 +16,10 @@ public class SalesReport extends Command {
 	public String toString() {
 	    String result = "";
 	    result += "Name: " + name + "\n";
-	    result += "Product: " + product.getName() + "\n";
-	    if (date != null) {
+	    if (product != null)
+	    	result += "Product: " + product.getName() + "\n";
+	    if (date != null)
 	    	result += "Date: " + new SimpleDateFormat("dd.MM.yyyy").format(date) + "\n";
-	    }
 	    result += "Status: " + status + "\n";
 	    return result;
 	}

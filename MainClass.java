@@ -5,10 +5,12 @@ import java.util.HashSet;
 import java.util.Queue;
 import java.util.LinkedList;
 import java.util.Iterator;
+//import java.util.Date;
 
 public class MainClass {
 	private static Set<Product> productsSet = new HashSet<Product>();
 	private static Queue<Command> commandsQueue = new LinkedList<Command>();
+
 	public static void main(String[] args) throws ParseException   {
 		Scanner scanner = new Scanner(System.in);
 
@@ -18,12 +20,12 @@ public class MainClass {
 				break;
 			parseCommand(inputCommand);
 		}
-		printQueue();
+		printResults();
+		/*printQueue();
 		System.out.println("--");
-		printSet();
-		//String com = scanner.nextLine();
-		
+		printSet();*/
 	}
+
 	public static void parseCommand(String inputCommand) throws ParseException {
 		String[] s = inputCommand.split(" ");
 		if (s.length == 2) {
@@ -33,28 +35,14 @@ public class MainClass {
 			command.setProduct(product);
 			if (productsSet.add(product)) {
 				command.setStatus("OK");
-				//System.out.println("ura");
 			} else {
-				//System.out.println("no");
 				command.setStatus("ERROR");
 			}
 			commandsQueue.add(command);
-			//System.out.println(productsSet.size());
-
 		} else if (s.length == 5) {
 			PurchaseDemand command = new PurchaseDemand();
 			command.setName(s[0]);
-			Product current_product = new Product(s[1]);
-			Iterator<Product> it = productsSet.iterator();
-			while (it.hasNext()) {
-				Product product = it.next();
-				if (product.equals(current_product)) {
-					command.setProduct(product);
-					break;
-				}
-				//System.out.println(product.getName());
-			}
-			//comm.setProduct(product);
+			command.setProduct(isInSet(s[1]));
 			command.setAmount(Integer.parseInt(s[2]));
 			if (command.getName().equals("PURCHASE")) {
 				if (command.getProduct() != null) {
@@ -74,79 +62,65 @@ public class MainClass {
 			command.setCoast(Integer.parseInt(s[3]));
 			command.setDate(s[4]);
 			commandsQueue.add(command);
-			/*Command command = new Command();
-			command.setName(s[0]);
-			Product current_product = new Product(s[1]);
-			Iterator<Product> it = productsSet.iterator();
-			while (it.hasNext()) {
-				Product product = it.next();
-				if (product.equals(current_product)) {
-					command.setProduct(product);
-					break;
-				}
-				//System.out.println(product.getName());
-			}
-			//comm.setProduct(product);
-			command.setAmount(Integer.parseInt(s[2]));
-			if (s[0].equals("PURCHASE") && command.getProduct() != null) {
-				command.getProduct().setAmount(command.getProduct().getAmount()+command.getAmount());
-				command.setStatus(true);
-			} else if (s[0].equals("DEMAND") && command.getProduct() != null && command.getProduct().getAmount() >= command.getAmount()) {
-				command.getProduct().setAmount(command.getProduct().getAmount()-command.getAmount());
-				command.setStatus(true);
-			}
-			command.setCoast(Integer.parseInt(s[3]));
-			command.setDate(s[4]);
-			commandsQueue.add(command);*/
-			//command.printObj();
 		} else if (s.length == 3) {
 			SalesReport command = new SalesReport();
 			command.setName(s[0]);
-			Product current_product = new Product(s[1]);
-			Iterator<Product> it = productsSet.iterator();
-			while (it.hasNext()) {
-				Product product = it.next();
-				if (product.equals(current_product)) {
-					command.setProduct(product);
-					break;
-				}
-				//System.out.println(product.getName());
-			}
+			command.setProduct(isInSet(s[1]));
 			command.setDate(s[2]);
-			int proAmount = 0;
-			int wholePribil = 0;
-			int sebesto = 0;
-			for (Command c : commandsQueue) {
-				if (c.getName().equals("DEMAND")) {
-					proAmount = ((PurchaseDemand)c).getAmount();
-					wholePribil = proAmount*((PurchaseDemand)c).getCoast();
-				}
-			}
-			for (Command c : commandsQueue) {
-				if (proAmount == 0) {
-					break;
-				}
-				if (c.getName().equals("PURCHASE") && c.getProduct().equals(command.getProduct())) {
-					if (proAmount > ((PurchaseDemand)c).getAmount()) {
-						proAmount -= ((PurchaseDemand)c).getAmount();
-						sebesto += ((PurchaseDemand)c).getAmount()*((PurchaseDemand)c).getCoast();
-					} else {
-						sebesto += proAmount*((PurchaseDemand)c).getCoast();
-						proAmount = 0;
+			if (command.getProduct() != null) {
+				int proAmount = 0;
+				int wholePribil = 0;
+				int sebesto = 0;
+				for (Command c : commandsQueue) {
+					if (c.getStatus().equals("OK") && 
+						c.getName().equals("DEMAND") && 
+						c.getProduct().equals(command.getProduct()) && 
+						command.getDate().compareTo(((PurchaseDemand)c).getDate()) >= 0) {
+						
+						proAmount += ((PurchaseDemand)c).getAmount();
+						wholePribil += ((PurchaseDemand)c).getAmount()*((PurchaseDemand)c).getCoast();
 					}
 				}
+				for (Command c : commandsQueue) {
+					if (proAmount == 0) {
+						break;
+					}
+					if (c.getStatus().equals("OK") && 
+						c.getName().equals("PURCHASE") && 
+						c.getProduct().equals(command.getProduct())) {
+
+						if (proAmount > ((PurchaseDemand)c).getAmount()) {
+							proAmount -= ((PurchaseDemand)c).getAmount();
+							sebesto += ((PurchaseDemand)c).getAmount()*((PurchaseDemand)c).getCoast();
+						} else {
+							sebesto += proAmount*((PurchaseDemand)c).getCoast();
+							proAmount = 0;
+						}
+					}
+				}
+				command.setStatus(Integer.toString(wholePribil - sebesto));
+			} else {
+				command.setStatus("ERROR");
 			}
-			command.setStatus(Integer.toString(wholePribil - sebesto));
 			commandsQueue.add(command);
-			//System.out.println("Pribil: " + (wholePribil - sebesto));
 		}
 	}
+	public static Product isInSet(String s) {
+		Product current_product = new Product(s);
+		Iterator<Product> it = productsSet.iterator();
+		while (it.hasNext()) {
+			Product product = it.next();
+			if (product.equals(current_product)) {
+				return product;
+			}
+		}
+		return null;
+	}
+	public static void printResults() {
+		for (Command command : commandsQueue)
+			System.out.println(command.getStatus());
+	}
 	public static void printQueue() {
-		/*while (!commandsQueue.isEmpty()) {
-			Command command = commandsQueue.remove();
-			command.printObj();
-			System.out.println("----------");
-		}*/
 		for (Command command : commandsQueue) {
 			System.out.println(command);
 			System.out.println("----------");
